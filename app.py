@@ -10,6 +10,8 @@ from Model import ProfileAnswers
 from Questions import get_user_category
 from random import sample 
 import random
+from tabulate import tabulate
+
 
 # Define KMeans and Normalizer model, then combine them into pipeline
 kmeans = KMeans(n_clusters=5)
@@ -77,21 +79,16 @@ class UserLabel(int):
 @app.post('/predict_category')
 def predict_user (user_profile_answers: ProfileAnswers):
     category=get_user_category(user_profile_answers)
-    if category == 0: 
-        return {'marina'},
 
-    if category == 1: 
-        return {'wonder'},
+    questions_matching_category = df.query(f"labels == {category}")
+    print(tabulate(questions_matching_category, headers='keys', tablefmt='psql'))
 
-    if category == 2: 
-        return {'lorenzo'},
-
-    if category == 3: 
-        return {'india'},
-
-    if category == 4: 
-        return {'leo'}
+    sample_df = questions_matching_category.sample()
+    print("Subset containing one random row", sample_df)
     
+    question = sample_df['questions'].values[0]
+
+    return question
 
 
 # 4. Run the API with uvicorn
